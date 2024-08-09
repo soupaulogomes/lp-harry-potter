@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CharacterCard from './components/CharacterCard';
 import './styles/App.scss';
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 function App() {
   const [characters, setCharacters] = useState([]);
