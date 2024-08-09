@@ -12,7 +12,7 @@ Landing page desenvolvida em React para o processo seletivo para a vaga de Desen
 
 ## Pré-requisitos
 
-Certifique-se de ter o [https://nodejs.org/en/download/prebuilt-installer/current](Node.js) e o npm instalados em sua máquina.
+Certifique-se de ter o [Node.js](https://nodejs.org/en/download/prebuilt-installer/current) e o npm instalados em sua máquina.
 
 ## Instalação
 Siga os passos abaixo para executar o projeto localmente:
