@@ -29,4 +29,4 @@ Siga os passos abaixo para executar o projeto localmente:
 
 Isso abrirá o projeto no link [http://localhost:3000](http://localhost:3000).
 
-<iframe src="https://giphy.com/embed/PXvCWUnmqVdks" width="480" height="331" style="" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/PXvCWUnmqVdks">via GIPHY</a></p>
+<img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2FubTg1amJubnM1d2tzc3N2dHNrc2oyZGV0NzdiaDF4aXUzdjV2aCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PXvCWUnmqVdks/giphy.webp" width="200" />
