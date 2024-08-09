@@ -28,3 +28,5 @@ Siga os passos abaixo para executar o projeto localmente:
 `npm start`
 
 Isso abrirá o projeto no link [http://localhost:3000](http://localhost:3000).
+
+<iframe src="https://giphy.com/embed/PXvCWUnmqVdks" width="480" height="331" style="" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/PXvCWUnmqVdks">via GIPHY</a></p>
