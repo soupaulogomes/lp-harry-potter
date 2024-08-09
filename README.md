@@ -2,6 +2,8 @@
 
 Landing page desenvolvida em React para o processo seletivo para a vaga de Desenvolvedor VTEX IO da empresa Stefanini. Esta landing page consome dados da API de personagens do Harry Potter, fornecida pela empresa. Após leitura dos dados, é exibido informações como foto dos personagens, nome, data de nascimento, casa a que pertence, patrono, ator principal e status de vida dos personagens.
 
+Link de acesso: [Landing Page](https://lp-harry-potter-delta.vercel.app/)
+
 ## Tecnologias Utilizadas
 
 - **React**: Biblioteca JavaScript para construção de interfaces de usuário. (v18.3.1)
