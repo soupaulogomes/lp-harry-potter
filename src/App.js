@@ -23,6 +23,7 @@ function App() {
           <CharacterCard key={character.name} character={character} />
         ))}
       </main>
+      <SpeedInsights />
     </div>
   );
 }
