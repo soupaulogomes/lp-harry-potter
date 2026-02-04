@@ -13,6 +13,23 @@ function App() {
   const [birthFilter, setBirthFilter] = useState('');
   const [aliveFilter, setAliveFilter] = useState('');
 
+  const normalizeText = value =>
+    value
+      ?.toString()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' ') ?? '';
+
+  const includesAllTokens = (value, query) => {
+    if (!query) {
+      return true;
+    }
+    const tokens = query.split(' ').filter(Boolean);
+    return tokens.every(token => value.includes(token));
+  };
+
   useEffect(() => {
     axios.get('https://hp-api.onrender.com/api/characters')
       .then(response => setCharacters(response.data))
@@ -29,26 +46,28 @@ function App() {
   }, [characters]);
 
   const filteredCharacters = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase();
-    const normalizedPatronus = patronusFilter.trim().toLowerCase();
-    const normalizedActor = actorFilter.trim().toLowerCase();
-    const normalizedBirth = birthFilter.trim().toLowerCase();
-    const normalizedHouse = houseFilter.trim().toLowerCase();
+    const normalizedSearch = normalizeText(searchTerm);
+    const normalizedPatronus = normalizeText(patronusFilter);
+    const normalizedActor = normalizeText(actorFilter);
+    const normalizedBirth = normalizeText(birthFilter);
+    const normalizedHouse = normalizeText(houseFilter);
 
     return characters.filter(character => {
-      const name = character.name?.toLowerCase() ?? '';
-      const actor = character.actor?.toLowerCase() ?? '';
-      const patronus = character.patronus?.toLowerCase() ?? '';
-      const house = character.house?.toLowerCase() ?? '';
-      const birth = character.dateOfBirth?.toLowerCase() ?? '';
+      const name = normalizeText(character.name);
+      const actor = normalizeText(character.actor);
+      const patronus = normalizeText(character.patronus);
+      const house = normalizeText(character.house);
+      const birth = normalizeText(character.dateOfBirth);
 
       const matchesSearch = normalizedSearch
-        ? [name, actor, patronus, house].some(field => field.includes(normalizedSearch))
+        ? [name, actor, patronus, house].some(field => includesAllTokens(field, normalizedSearch))
         : true;
       const matchesHouse = normalizedHouse ? house === normalizedHouse : true;
-      const matchesPatronus = normalizedPatronus ? patronus.includes(normalizedPatronus) : true;
-      const matchesActor = normalizedActor ? actor.includes(normalizedActor) : true;
-      const matchesBirth = normalizedBirth ? birth.includes(normalizedBirth) : true;
+      const matchesPatronus = normalizedPatronus
+        ? includesAllTokens(patronus, normalizedPatronus)
+        : true;
+      const matchesActor = normalizedActor ? includesAllTokens(actor, normalizedActor) : true;
+      const matchesBirth = normalizedBirth ? includesAllTokens(birth, normalizedBirth) : true;
       const matchesAlive =
         aliveFilter === ''
           ? true
@@ -67,6 +86,16 @@ function App() {
     });
   }, [characters, searchTerm, houseFilter, patronusFilter, actorFilter, birthFilter, aliveFilter]);
 
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setHouseFilter('');
+    setPatronusFilter('');
+    setActorFilter('');
+    setBirthFilter('');
+    setAliveFilter('');
+    window.location.reload();
+  };
+
   return (
     <div className="app">
       <header className="header">
@@ -82,6 +111,11 @@ function App() {
             value={searchTerm}
             onChange={event => setSearchTerm(event.target.value)}
           />
+          <div className="filters__actions">
+            <button type="button" className="filters__reset" onClick={handleResetFilters}>
+              Início
+            </button>
+          </div>
         </div>
         <div className="filters__grid">
           <label>

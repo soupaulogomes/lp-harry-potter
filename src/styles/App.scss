@@ -25,6 +25,28 @@ body {
     margin-bottom: 20px;
   }
 
+  .filters__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .filters__reset {
+    background: linear-gradient(135deg, #b58635, #f0d287);
+    border: none;
+    border-radius: 6px;
+    color: #141414;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 10px 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .filters__reset:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+    transform: translateY(-1px);
+  }
+
   .filters__grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
