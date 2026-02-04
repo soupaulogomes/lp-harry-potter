@@ -14,7 +14,7 @@ function CharacterCard({ character }) {
         <p><strong>Casa:</strong> {character.house || 'Desconhecido'}</p>
         <p><strong>Patrono:</strong> {character.patronus || 'Desconhecido'}</p>
         <p><strong>Ator:</strong> {character.actor || 'Desconhecido'}</p>
-        <p><strong>Vivo:</strong> {character.alive ? 'Sim' : 'Não'}</p>
+        <p><strong>Vivo:</strong> {character.alive === true ? 'Sim' : character.alive === false ? 'Não' : 'Desconhecido'}</p>
       </div>
     </div>
   );
