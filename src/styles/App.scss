@@ -11,6 +11,46 @@ body {
     text-align: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   }
+  .filters {
+    max-width: 1200px;
+    margin: 24px auto 0;
+    padding: 0 20px;
+    color: #f5f5f5;
+  }
+
+  .filters__search {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .filters__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  .filters label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+  }
+
+  .filters input,
+  .filters select {
+    background-color: #1a1f2d;
+    border: 1px solid #2b3144;
+    border-radius: 6px;
+    color: #f5f5f5;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+
+  .filters input::placeholder {
+    color: #aab0c0;
+  }
   .character-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
