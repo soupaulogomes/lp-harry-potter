@@ -1,5 +1,9 @@
 .character-card {
   position: relative;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
   background: linear-gradient(155deg, rgba(20, 26, 42, 0.96), rgba(10, 14, 24, 0.98));
   border: 1px solid rgba(149, 168, 209, 0.22);
   border-radius: 18px;
@@ -79,29 +83,15 @@
   }
 }
 
-.character-details {
-  padding: 16px;
-  text-align: left;
+.character-summary {
+  padding: 14px 16px;
 
   h2 {
     color: #fffaf0;
-    font-size: clamp(1.62rem, 2.8vw, 2rem);
-    margin: 4px 0 10px;
+    font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+    margin: 0;
     font-family: 'HarryPotter', serif;
     letter-spacing: 1px;
     text-wrap: balance;
-  }
-
-  p {
-    margin: 7px 0;
-    color: #e5e9f5;
-    line-height: 1.35;
-
-    strong {
-      color: #f3ddb0;
-      font-family: 'Lumos', serif;
-      letter-spacing: 0.02em;
-      margin-right: 2px;
-    }
   }
 }

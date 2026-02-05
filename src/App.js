@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import CharacterCard from './components/CharacterCard';
+import CharacterModal from './components/CharacterModal';
 import './styles/App.scss';
 import './styles/Global.scss';
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -15,6 +16,7 @@ function App() {
   const [aliveFilter, setAliveFilter] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [selectedCharacter, setSelectedCharacter] = useState(null);
 
   const normalizeText = value =>
     value
@@ -47,6 +49,14 @@ function App() {
       })
       .finally(() => setIsLoading(false));
   }, []);
+
+
+  useEffect(() => {
+    document.body.style.overflow = selectedCharacter ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedCharacter]);
 
   const houseOptions = useMemo(() => {
     const houses = characters
@@ -253,11 +263,19 @@ function App() {
 
           <main className="character-list">
             {filteredCharacters.map(character => (
-              <CharacterCard key={`${character.name}-${character.actor}`} character={character} />
+              <CharacterCard
+                key={`${character.name}-${character.actor}`}
+                character={character}
+                onOpenDetails={setSelectedCharacter}
+              />
             ))}
           </main>
         </div>
       </section>
+
+      {selectedCharacter && (
+        <CharacterModal character={selectedCharacter} onClose={() => setSelectedCharacter(null)} />
+      )}
 
       <SpeedInsights />
     </div>

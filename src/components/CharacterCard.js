@@ -2,7 +2,7 @@ import React from 'react';
 import image from '../images/sem-foto.jpg';
 import './CharacterCard.scss';
 
-function CharacterCard({ character }) {
+function CharacterCard({ character, onOpenDetails }) {
   const statusConfig =
     character.alive === true
       ? { label: 'Vivo', variant: 'vivo' }
@@ -11,7 +11,7 @@ function CharacterCard({ character }) {
         : { label: 'Sem informação', variant: 'sem-informacao' };
 
   return (
-    <article className="character-card">
+    <button type="button" className="character-card" onClick={() => onOpenDetails(character)}>
       <div className="character-image">
         <img
           src={character.image || image}
@@ -24,22 +24,10 @@ function CharacterCard({ character }) {
         </span>
       </div>
 
-      <div className="character-details">
+      <div className="character-summary">
         <h2>{character.name}</h2>
-        <p>
-          <strong>Data de Nascimento:</strong> {character.dateOfBirth || 'Desconhecido'}
-        </p>
-        <p>
-          <strong>Casa:</strong> {character.house || 'Desconhecido'}
-        </p>
-        <p>
-          <strong>Patrono:</strong> {character.patronus || 'Desconhecido'}
-        </p>
-        <p>
-          <strong>Ator:</strong> {character.actor || 'Desconhecido'}
-        </p>
       </div>
-    </article>
+    </button>
   );
 }
 
