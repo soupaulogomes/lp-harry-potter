@@ -16,11 +16,11 @@ function App() {
   const normalizeText = value =>
     value
       ?.toString()
-      .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '')
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, ' ') ?? '';
+      ?.normalize('NFD')
+      ?.replace(/\p{Diacritic}/gu, '')
+      ?.toLowerCase()
+      ?.trim()
+      ?.replace(/\s+/g, ' ') ?? '';
 
   const includesAllTokens = (value, query) => {
     if (!query) {
