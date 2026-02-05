@@ -58,6 +58,36 @@ function App() {
     return Array.from(new Set(houses)).sort();
   }, [characters]);
 
+  const patronusOptions = useMemo(() => {
+    const patronus = characters
+      .map(character => character.patronus)
+      .filter(Boolean)
+      .map(value => value.trim())
+      .filter(value => value.length > 0);
+
+    return Array.from(new Set(patronus)).sort();
+  }, [characters]);
+
+  const actorOptions = useMemo(() => {
+    const actors = characters
+      .map(character => character.actor)
+      .filter(Boolean)
+      .map(value => value.trim())
+      .filter(value => value.length > 0);
+
+    return Array.from(new Set(actors)).sort();
+  }, [characters]);
+
+  const birthOptions = useMemo(() => {
+    const births = characters
+      .map(character => character.dateOfBirth)
+      .filter(Boolean)
+      .map(value => value.trim())
+      .filter(value => value.length > 0);
+
+    return Array.from(new Set(births)).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  }, [characters]);
+
   const filteredCharacters = useMemo(() => {
     const normalizedSearch = normalizeText(searchTerm);
     const normalizedPatronus = normalizeText(patronusFilter);
@@ -76,9 +106,9 @@ function App() {
         ? [name, actor, patronus, house].some(field => includesAllTokens(field, normalizedSearch))
         : true;
       const matchesHouse = normalizedHouse ? house === normalizedHouse : true;
-      const matchesPatronus = normalizedPatronus ? includesAllTokens(patronus, normalizedPatronus) : true;
-      const matchesActor = normalizedActor ? includesAllTokens(actor, normalizedActor) : true;
-      const matchesBirth = normalizedBirth ? includesAllTokens(birth, normalizedBirth) : true;
+      const matchesPatronus = normalizedPatronus ? patronus === normalizedPatronus : true;
+      const matchesActor = normalizedActor ? actor === normalizedActor : true;
+      const matchesBirth = normalizedBirth ? birth === normalizedBirth : true;
       const matchesAlive =
         aliveFilter === ''
           ? true
@@ -115,9 +145,6 @@ function App() {
     aliveFilter,
   ].filter(Boolean).length;
 
-  const aliveCount = filteredCharacters.filter(character => character.alive === true).length;
-  const deceasedCount = filteredCharacters.filter(character => character.alive === false).length;
-
   return (
     <div className="app">
       <header className="header">
@@ -125,53 +152,34 @@ function App() {
           <p className="header__eyebrow">Wizarding Directory</p>
           <h1>Personagens de Harry Potter</h1>
           <p className="header__subtitle">
-            Uma experiência elegante para explorar personagens, casas e patronos com filtros instantâneos.
+            Busca no topo e filtros rápidos na lateral para uma navegação mais limpa e eficiente.
           </p>
-        </div>
-
-        <div className="header__stats" aria-label="Resumo da busca">
-          <article>
-            <span>Resultado</span>
-            <strong>{isLoading ? '...' : filteredCharacters.length}</strong>
-          </article>
-          <article>
-            <span>Vivos</span>
-            <strong>{isLoading ? '...' : aliveCount}</strong>
-          </article>
-          <article>
-            <span>Falecidos</span>
-            <strong>{isLoading ? '...' : deceasedCount}</strong>
-          </article>
         </div>
       </header>
 
-      <section className="filters" aria-label="Filtros de personagens">
-        <div className="filters__topbar">
-          <p>
-            {isLoading
-              ? 'Carregando elenco mágico...'
-              : `${filteredCharacters.length} personagem(ns) encontrado(s)`}
-          </p>
-          {activeFiltersCount > 0 && <span className="filters__badge">{activeFiltersCount} filtro(s) ativo(s)</span>}
+      <section className="searchbar" aria-label="Busca de personagens">
+        <label htmlFor="search">Buscar personagem</label>
+        <div className="searchbar__wrap">
+          <input
+            id="search"
+            type="text"
+            placeholder="Nome, casa, patrono ou ator"
+            value={searchTerm}
+            onChange={event => setSearchTerm(event.target.value)}
+          />
+          <button type="button" className="filters__reset" onClick={handleResetFilters}>
+            Limpar tudo
+          </button>
         </div>
+      </section>
 
-        <div className="filters__search">
-          <label htmlFor="search">Busca inteligente</label>
-          <div className="filters__search-wrap">
-            <input
-              id="search"
-              type="text"
-              placeholder="Nome, casa, patrono ou ator"
-              value={searchTerm}
-              onChange={event => setSearchTerm(event.target.value)}
-            />
-            <button type="button" className="filters__reset" onClick={handleResetFilters}>
-              Limpar
-            </button>
+      <section className="content" aria-label="Filtros e resultados">
+        <aside className="filters-sidebar" aria-label="Filtros avançados">
+          <div className="filters__topbar">
+            <p>Refine os resultados</p>
+            {activeFiltersCount > 0 && <span className="filters__badge">{activeFiltersCount} ativo(s)</span>}
           </div>
-        </div>
 
-        <div className="filters__grid">
           <label>
             Casa
             <select value={houseFilter} onChange={event => setHouseFilter(event.target.value)}>
@@ -186,32 +194,38 @@ function App() {
 
           <label>
             Patrono
-            <input
-              type="text"
-              placeholder="Ex: cervo"
-              value={patronusFilter}
-              onChange={event => setPatronusFilter(event.target.value)}
-            />
+            <select value={patronusFilter} onChange={event => setPatronusFilter(event.target.value)}>
+              <option value="">Todos</option>
+              {patronusOptions.map(patronus => (
+                <option key={patronus} value={patronus}>
+                  {patronus}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label>
             Ator
-            <input
-              type="text"
-              placeholder="Nome do ator"
-              value={actorFilter}
-              onChange={event => setActorFilter(event.target.value)}
-            />
+            <select value={actorFilter} onChange={event => setActorFilter(event.target.value)}>
+              <option value="">Todos</option>
+              {actorOptions.map(actor => (
+                <option key={actor} value={actor}>
+                  {actor}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label>
             Data de nascimento
-            <input
-              type="text"
-              placeholder="Ex: 31-07-1980"
-              value={birthFilter}
-              onChange={event => setBirthFilter(event.target.value)}
-            />
+            <select value={birthFilter} onChange={event => setBirthFilter(event.target.value)}>
+              <option value="">Todas</option>
+              {birthOptions.map(birth => (
+                <option key={birth} value={birth}>
+                  {birth}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label>
@@ -222,20 +236,28 @@ function App() {
               <option value="false">Falecido</option>
             </select>
           </label>
+        </aside>
+
+        <div className="results">
+          <div className="results__summary">
+            <p>
+              {isLoading ? 'Carregando elenco mágico...' : `${filteredCharacters.length} personagem(ns) encontrado(s)`}
+            </p>
+          </div>
+
+          {hasError && <p className="feedback feedback--error">Não foi possível carregar os personagens agora.</p>}
+          {!hasError && isLoading && <p className="feedback feedback--loading">Abrindo o grimório...</p>}
+          {!hasError && !isLoading && filteredCharacters.length === 0 && (
+            <p className="feedback">Nenhum personagem combina com os filtros selecionados.</p>
+          )}
+
+          <main className="character-list">
+            {filteredCharacters.map(character => (
+              <CharacterCard key={`${character.name}-${character.actor}`} character={character} />
+            ))}
+          </main>
         </div>
       </section>
-
-      {hasError && <p className="feedback feedback--error">Não foi possível carregar os personagens agora.</p>}
-      {!hasError && isLoading && <p className="feedback feedback--loading">Abrindo o grimório...</p>}
-      {!hasError && !isLoading && filteredCharacters.length === 0 && (
-        <p className="feedback">Nenhum personagem combina com os filtros selecionados.</p>
-      )}
-
-      <main className="character-list">
-        {filteredCharacters.map(character => (
-          <CharacterCard key={`${character.name}-${character.actor}`} character={character} />
-        ))}
-      </main>
 
       <SpeedInsights />
     </div>
