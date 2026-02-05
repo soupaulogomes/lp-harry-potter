@@ -115,11 +115,34 @@ function App() {
     aliveFilter,
   ].filter(Boolean).length;
 
+  const aliveCount = filteredCharacters.filter(character => character.alive === true).length;
+  const deceasedCount = filteredCharacters.filter(character => character.alive === false).length;
+
   return (
     <div className="app">
       <header className="header">
-        <p className="header__eyebrow">Explore o mundo mágico</p>
-        <h1>Personagens de Harry Potter</h1>
+        <div className="header__content">
+          <p className="header__eyebrow">Wizarding Directory</p>
+          <h1>Personagens de Harry Potter</h1>
+          <p className="header__subtitle">
+            Uma experiência elegante para explorar personagens, casas e patronos com filtros instantâneos.
+          </p>
+        </div>
+
+        <div className="header__stats" aria-label="Resumo da busca">
+          <article>
+            <span>Resultado</span>
+            <strong>{isLoading ? '...' : filteredCharacters.length}</strong>
+          </article>
+          <article>
+            <span>Vivos</span>
+            <strong>{isLoading ? '...' : aliveCount}</strong>
+          </article>
+          <article>
+            <span>Falecidos</span>
+            <strong>{isLoading ? '...' : deceasedCount}</strong>
+          </article>
+        </div>
       </header>
 
       <section className="filters" aria-label="Filtros de personagens">
@@ -133,7 +156,7 @@ function App() {
         </div>
 
         <div className="filters__search">
-          <label htmlFor="search">Busca</label>
+          <label htmlFor="search">Busca inteligente</label>
           <div className="filters__search-wrap">
             <input
               id="search"
@@ -192,11 +215,11 @@ function App() {
           </label>
 
           <label>
-            Vivo
+            Status
             <select value={aliveFilter} onChange={event => setAliveFilter(event.target.value)}>
               <option value="">Todos</option>
-              <option value="true">Sim</option>
-              <option value="false">Não</option>
+              <option value="true">Vivo</option>
+              <option value="false">Falecido</option>
             </select>
           </label>
         </div>

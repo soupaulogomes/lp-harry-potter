@@ -1,18 +1,33 @@
 .character-card {
-  background: linear-gradient(145deg, rgba(18, 24, 38, 0.95), rgba(11, 15, 25, 0.96));
-  border: 1px solid rgba(226, 188, 116, 0.2);
-  border-radius: 16px;
-  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.28);
+  position: relative;
+  background: linear-gradient(155deg, rgba(20, 26, 42, 0.96), rgba(10, 14, 24, 0.98));
+  border: 1px solid rgba(149, 168, 209, 0.22);
+  border-radius: 18px;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.28);
   overflow: hidden;
-  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+  transition: transform 0.32s ease, box-shadow 0.32s ease, border-color 0.32s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 10%, rgba(255, 255, 255, 0.08), transparent 55%);
+    transform: translateX(-125%);
+    transition: transform 0.55s ease;
+    pointer-events: none;
+  }
 
   &:hover {
     transform: translateY(-7px);
-    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.36);
-    border-color: rgba(226, 188, 116, 0.55);
+    box-shadow: 0 24px 36px rgba(0, 0, 0, 0.4);
+    border-color: rgba(241, 202, 132, 0.42);
+
+    &::before {
+      transform: translateX(125%);
+    }
 
     .character-image img {
-      transform: scale(1.04);
+      transform: scale(1.05);
     }
   }
 }
@@ -25,12 +40,12 @@
     width: 100%;
     height: 350px;
     object-fit: cover;
-    filter: saturate(0.9) contrast(1.04);
+    filter: saturate(0.92) contrast(1.05);
     transition: transform 0.45s ease, filter 0.35s ease;
   }
 
   .character-image__photo--falecido {
-    filter: grayscale(1) contrast(1.05) brightness(0.9);
+    filter: grayscale(1) contrast(1.08) brightness(0.88);
   }
 }
 
@@ -43,7 +58,7 @@
   letter-spacing: 0.05em;
   border-radius: 999px;
   padding: 5px 10px;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
 
   &--vivo {
     background: rgba(91, 221, 150, 0.2);
@@ -70,7 +85,7 @@
 
   h2 {
     color: #fffaf0;
-    font-size: clamp(1.6rem, 3vw, 2rem);
+    font-size: clamp(1.62rem, 2.8vw, 2rem);
     margin: 4px 0 10px;
     font-family: 'HarryPotter', serif;
     letter-spacing: 1px;
@@ -80,7 +95,7 @@
   p {
     margin: 7px 0;
     color: #e5e9f5;
-    line-height: 1.3;
+    line-height: 1.35;
 
     strong {
       color: #f3ddb0;
