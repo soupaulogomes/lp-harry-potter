@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import CharacterCard from './components/CharacterCard';
 import './styles/App.scss';
-import { SpeedInsights } from "@vercel/speed-insights/react";
+import './styles/Global.scss';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 function App() {
   const [characters, setCharacters] = useState([]);
@@ -12,6 +13,8 @@ function App() {
   const [actorFilter, setActorFilter] = useState('');
   const [birthFilter, setBirthFilter] = useState('');
   const [aliveFilter, setAliveFilter] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   const normalizeText = value =>
     value
@@ -26,14 +29,23 @@ function App() {
     if (!query) {
       return true;
     }
+
     const tokens = query.split(' ').filter(Boolean);
     return tokens.every(token => value.includes(token));
   };
 
   useEffect(() => {
-    axios.get('https://hp-api.onrender.com/api/characters')
-      .then(response => setCharacters(response.data))
-      .catch(error => console.error('Erro ao buscar personagens:', error));
+    axios
+      .get('https://hp-api.onrender.com/api/characters')
+      .then(response => {
+        setCharacters(response.data);
+        setHasError(false);
+      })
+      .catch(error => {
+        console.error('Erro ao buscar personagens:', error);
+        setHasError(true);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const houseOptions = useMemo(() => {
@@ -42,6 +54,7 @@ function App() {
       .filter(Boolean)
       .map(house => house.trim())
       .filter(house => house.length > 0);
+
     return Array.from(new Set(houses)).sort();
   }, [characters]);
 
@@ -63,17 +76,15 @@ function App() {
         ? [name, actor, patronus, house].some(field => includesAllTokens(field, normalizedSearch))
         : true;
       const matchesHouse = normalizedHouse ? house === normalizedHouse : true;
-      const matchesPatronus = normalizedPatronus
-        ? includesAllTokens(patronus, normalizedPatronus)
-        : true;
+      const matchesPatronus = normalizedPatronus ? includesAllTokens(patronus, normalizedPatronus) : true;
       const matchesActor = normalizedActor ? includesAllTokens(actor, normalizedActor) : true;
       const matchesBirth = normalizedBirth ? includesAllTokens(birth, normalizedBirth) : true;
       const matchesAlive =
         aliveFilter === ''
           ? true
           : aliveFilter === 'true'
-          ? character.alive === true
-          : character.alive === false;
+            ? character.alive === true
+            : character.alive === false;
 
       return (
         matchesSearch &&
@@ -93,30 +104,50 @@ function App() {
     setActorFilter('');
     setBirthFilter('');
     setAliveFilter('');
-    window.location.reload();
   };
+
+  const activeFiltersCount = [
+    searchTerm,
+    houseFilter,
+    patronusFilter,
+    actorFilter,
+    birthFilter,
+    aliveFilter,
+  ].filter(Boolean).length;
 
   return (
     <div className="app">
       <header className="header">
+        <p className="header__eyebrow">Explore o mundo mágico</p>
         <h1>Personagens de Harry Potter</h1>
       </header>
-      <section className="filters">
+
+      <section className="filters" aria-label="Filtros de personagens">
+        <div className="filters__topbar">
+          <p>
+            {isLoading
+              ? 'Carregando elenco mágico...'
+              : `${filteredCharacters.length} personagem(ns) encontrado(s)`}
+          </p>
+          {activeFiltersCount > 0 && <span className="filters__badge">{activeFiltersCount} filtro(s) ativo(s)</span>}
+        </div>
+
         <div className="filters__search">
           <label htmlFor="search">Busca</label>
-          <input
-            id="search"
-            type="text"
-            placeholder="Nome, casa, patrono ou ator"
-            value={searchTerm}
-            onChange={event => setSearchTerm(event.target.value)}
-          />
-          <div className="filters__actions">
+          <div className="filters__search-wrap">
+            <input
+              id="search"
+              type="text"
+              placeholder="Nome, casa, patrono ou ator"
+              value={searchTerm}
+              onChange={event => setSearchTerm(event.target.value)}
+            />
             <button type="button" className="filters__reset" onClick={handleResetFilters}>
-              Início
+              Limpar
             </button>
           </div>
         </div>
+
         <div className="filters__grid">
           <label>
             Casa
@@ -129,6 +160,7 @@ function App() {
               ))}
             </select>
           </label>
+
           <label>
             Patrono
             <input
@@ -138,6 +170,7 @@ function App() {
               onChange={event => setPatronusFilter(event.target.value)}
             />
           </label>
+
           <label>
             Ator
             <input
@@ -147,6 +180,7 @@ function App() {
               onChange={event => setActorFilter(event.target.value)}
             />
           </label>
+
           <label>
             Data de nascimento
             <input
@@ -156,6 +190,7 @@ function App() {
               onChange={event => setBirthFilter(event.target.value)}
             />
           </label>
+
           <label>
             Vivo
             <select value={aliveFilter} onChange={event => setAliveFilter(event.target.value)}>
@@ -166,11 +201,19 @@ function App() {
           </label>
         </div>
       </section>
+
+      {hasError && <p className="feedback feedback--error">Não foi possível carregar os personagens agora.</p>}
+      {!hasError && isLoading && <p className="feedback feedback--loading">Abrindo o grimório...</p>}
+      {!hasError && !isLoading && filteredCharacters.length === 0 && (
+        <p className="feedback">Nenhum personagem combina com os filtros selecionados.</p>
+      )}
+
       <main className="character-list">
         {filteredCharacters.map(character => (
-          <CharacterCard key={character.name} character={character} />
+          <CharacterCard key={`${character.name}-${character.actor}`} character={character} />
         ))}
       </main>
+
       <SpeedInsights />
     </div>
   );
