@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import CharacterCard from './components/CharacterCard';
 import './styles/App.scss';
-import { SpeedInsights } from "@vercel/speed-insights/react";
+import './styles/Global.scss';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 function App() {
   const [characters, setCharacters] = useState([]);
@@ -12,6 +13,8 @@ function App() {
   const [actorFilter, setActorFilter] = useState('');
   const [birthFilter, setBirthFilter] = useState('');
   const [aliveFilter, setAliveFilter] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   const normalizeText = value =>
     value
@@ -26,14 +29,23 @@ function App() {
     if (!query) {
       return true;
     }
+
     const tokens = query.split(' ').filter(Boolean);
     return tokens.every(token => value.includes(token));
   };
 
   useEffect(() => {
-    axios.get('https://hp-api.onrender.com/api/characters')
-      .then(response => setCharacters(response.data))
-      .catch(error => console.error('Erro ao buscar personagens:', error));
+    axios
+      .get('https://hp-api.onrender.com/api/characters')
+      .then(response => {
+        setCharacters(response.data);
+        setHasError(false);
+      })
+      .catch(error => {
+        console.error('Erro ao buscar personagens:', error);
+        setHasError(true);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const houseOptions = useMemo(() => {
@@ -42,7 +54,38 @@ function App() {
       .filter(Boolean)
       .map(house => house.trim())
       .filter(house => house.length > 0);
+
     return Array.from(new Set(houses)).sort();
+  }, [characters]);
+
+  const patronusOptions = useMemo(() => {
+    const patronus = characters
+      .map(character => character.patronus)
+      .filter(Boolean)
+      .map(value => value.trim())
+      .filter(value => value.length > 0);
+
+    return Array.from(new Set(patronus)).sort();
+  }, [characters]);
+
+  const actorOptions = useMemo(() => {
+    const actors = characters
+      .map(character => character.actor)
+      .filter(Boolean)
+      .map(value => value.trim())
+      .filter(value => value.length > 0);
+
+    return Array.from(new Set(actors)).sort();
+  }, [characters]);
+
+  const birthOptions = useMemo(() => {
+    const births = characters
+      .map(character => character.dateOfBirth)
+      .filter(Boolean)
+      .map(value => value.trim())
+      .filter(value => value.length > 0);
+
+    return Array.from(new Set(births)).sort((a, b) => a.localeCompare(b, 'pt-BR'));
   }, [characters]);
 
   const filteredCharacters = useMemo(() => {
@@ -63,17 +106,15 @@ function App() {
         ? [name, actor, patronus, house].some(field => includesAllTokens(field, normalizedSearch))
         : true;
       const matchesHouse = normalizedHouse ? house === normalizedHouse : true;
-      const matchesPatronus = normalizedPatronus
-        ? includesAllTokens(patronus, normalizedPatronus)
-        : true;
-      const matchesActor = normalizedActor ? includesAllTokens(actor, normalizedActor) : true;
-      const matchesBirth = normalizedBirth ? includesAllTokens(birth, normalizedBirth) : true;
+      const matchesPatronus = normalizedPatronus ? patronus === normalizedPatronus : true;
+      const matchesActor = normalizedActor ? actor === normalizedActor : true;
+      const matchesBirth = normalizedBirth ? birth === normalizedBirth : true;
       const matchesAlive =
         aliveFilter === ''
           ? true
           : aliveFilter === 'true'
-          ? character.alive === true
-          : character.alive === false;
+            ? character.alive === true
+            : character.alive === false;
 
       return (
         matchesSearch &&
@@ -93,17 +134,32 @@ function App() {
     setActorFilter('');
     setBirthFilter('');
     setAliveFilter('');
-    window.location.reload();
   };
+
+  const activeFiltersCount = [
+    searchTerm,
+    houseFilter,
+    patronusFilter,
+    actorFilter,
+    birthFilter,
+    aliveFilter,
+  ].filter(Boolean).length;
 
   return (
     <div className="app">
       <header className="header">
-        <h1>Personagens de Harry Potter</h1>
+        <div className="header__content">
+          <p className="header__eyebrow">Wizarding Directory</p>
+          <h1>Personagens de Harry Potter</h1>
+          <p className="header__subtitle">
+            Busca no topo e filtros rápidos na lateral para uma navegação mais limpa e eficiente.
+          </p>
+        </div>
       </header>
-      <section className="filters">
-        <div className="filters__search">
-          <label htmlFor="search">Busca</label>
+
+      <section className="searchbar" aria-label="Busca de personagens">
+        <label htmlFor="search">Buscar personagem</label>
+        <div className="searchbar__wrap">
           <input
             id="search"
             type="text"
@@ -111,13 +167,19 @@ function App() {
             value={searchTerm}
             onChange={event => setSearchTerm(event.target.value)}
           />
-          <div className="filters__actions">
-            <button type="button" className="filters__reset" onClick={handleResetFilters}>
-              Início
-            </button>
-          </div>
+          <button type="button" className="filters__reset" onClick={handleResetFilters}>
+            Limpar tudo
+          </button>
         </div>
-        <div className="filters__grid">
+      </section>
+
+      <section className="content" aria-label="Filtros e resultados">
+        <aside className="filters-sidebar" aria-label="Filtros avançados">
+          <div className="filters__topbar">
+            <p>Refine os resultados</p>
+            {activeFiltersCount > 0 && <span className="filters__badge">{activeFiltersCount} ativo(s)</span>}
+          </div>
+
           <label>
             Casa
             <select value={houseFilter} onChange={event => setHouseFilter(event.target.value)}>
@@ -129,48 +191,74 @@ function App() {
               ))}
             </select>
           </label>
+
           <label>
             Patrono
-            <input
-              type="text"
-              placeholder="Ex: cervo"
-              value={patronusFilter}
-              onChange={event => setPatronusFilter(event.target.value)}
-            />
-          </label>
-          <label>
-            Ator
-            <input
-              type="text"
-              placeholder="Nome do ator"
-              value={actorFilter}
-              onChange={event => setActorFilter(event.target.value)}
-            />
-          </label>
-          <label>
-            Data de nascimento
-            <input
-              type="text"
-              placeholder="Ex: 31-07-1980"
-              value={birthFilter}
-              onChange={event => setBirthFilter(event.target.value)}
-            />
-          </label>
-          <label>
-            Vivo
-            <select value={aliveFilter} onChange={event => setAliveFilter(event.target.value)}>
+            <select value={patronusFilter} onChange={event => setPatronusFilter(event.target.value)}>
               <option value="">Todos</option>
-              <option value="true">Sim</option>
-              <option value="false">Não</option>
+              {patronusOptions.map(patronus => (
+                <option key={patronus} value={patronus}>
+                  {patronus}
+                </option>
+              ))}
             </select>
           </label>
+
+          <label>
+            Ator
+            <select value={actorFilter} onChange={event => setActorFilter(event.target.value)}>
+              <option value="">Todos</option>
+              {actorOptions.map(actor => (
+                <option key={actor} value={actor}>
+                  {actor}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Data de nascimento
+            <select value={birthFilter} onChange={event => setBirthFilter(event.target.value)}>
+              <option value="">Todas</option>
+              {birthOptions.map(birth => (
+                <option key={birth} value={birth}>
+                  {birth}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Status
+            <select value={aliveFilter} onChange={event => setAliveFilter(event.target.value)}>
+              <option value="">Todos</option>
+              <option value="true">Vivo</option>
+              <option value="false">Falecido</option>
+            </select>
+          </label>
+        </aside>
+
+        <div className="results">
+          <div className="results__summary">
+            <p>
+              {isLoading ? 'Carregando elenco mágico...' : `${filteredCharacters.length} personagem(ns) encontrado(s)`}
+            </p>
+          </div>
+
+          {hasError && <p className="feedback feedback--error">Não foi possível carregar os personagens agora.</p>}
+          {!hasError && isLoading && <p className="feedback feedback--loading">Abrindo o grimório...</p>}
+          {!hasError && !isLoading && filteredCharacters.length === 0 && (
+            <p className="feedback">Nenhum personagem combina com os filtros selecionados.</p>
+          )}
+
+          <main className="character-list">
+            {filteredCharacters.map(character => (
+              <CharacterCard key={`${character.name}-${character.actor}`} character={character} />
+            ))}
+          </main>
         </div>
       </section>
-      <main className="character-list">
-        {filteredCharacters.map(character => (
-          <CharacterCard key={character.name} character={character} />
-        ))}
-      </main>
+
       <SpeedInsights />
     </div>
   );
